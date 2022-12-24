@@ -1,0 +1,31 @@
+image: node:latest
+
+stages:
+  - build
+  - deploy
+
+docker-build:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+  stage: build
+  interruptible: true
+  script:
+    - echo $CI_PROJECT_NAME
+    - npm i
+
+cache:
+  paths:
+    - node_modules/
+
+restart:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+  stage: deploy
+  interruptible: true
+  script:
+    - npm install
+    - EXCHANGE_RATES=$EXCHANGE_RATES SUM=$SUM node index.js
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR
+
